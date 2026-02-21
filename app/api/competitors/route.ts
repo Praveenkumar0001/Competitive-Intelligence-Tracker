@@ -10,6 +10,9 @@ export async function GET() {
             checks: {
               orderBy: { checkDate: 'desc' },
               take: 1,
+              include: {
+                changes: true,
+              },
             },
           },
         },

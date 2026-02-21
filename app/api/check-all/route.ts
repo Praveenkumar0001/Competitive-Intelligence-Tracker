@@ -4,15 +4,21 @@ import { fetchWebContent } from '@/lib/fetcher'
 import { generateDiff, hasSignificantChanges } from '@/lib/diff'
 import { generateSummary } from '@/lib/openai'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
+  console.log('✅ check-all POST handler called')
   try {
     const body = await request.json()
+    console.log('Request body:', body)
     const { competitorId } = body
 
     if (!competitorId) {
+      console.log('❌ No competitorId provided')
       return NextResponse.json({ error: 'competitorId is required' }, { status: 400 })
     }
 
+    console.log('🔍 Finding links for competitor:', competitorId)
     const links = await prisma.link.findMany({
       where: { competitorId },
       include: {
@@ -23,7 +29,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    console.log('📊 Found links:', links.length)
     if (links.length === 0) {
+      console.log('⚠️ No links found')
       return NextResponse.json({ error: 'No links found for this competitor' }, { status: 404 })
     }
 
@@ -93,8 +101,10 @@ export async function POST(request: NextRequest) {
       results.push({ linkId: link.id, checkId: check.id, status })
     }
 
+    console.log('✅ All checks completed:', results.length)
     return NextResponse.json({ results, message: 'All checks completed' })
   } catch (error: any) {
+    console.error('❌ Error in check-all:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

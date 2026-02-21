@@ -517,7 +517,7 @@ export default function Home() {
         </div>
       )}
 
-      {competitors.some(c => c.links.some(l => l.checks.some(ch => ch.changes.length > 0))) && (
+      {competitors.some(c => c.links.some(l => l.checks.some(ch => ch.changes && ch.changes.length > 0))) && (
         <div className="mt-6 flex items-center gap-2">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
