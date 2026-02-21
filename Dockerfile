@@ -1,5 +1,6 @@
 # Install dependencies only when needed
 FROM node:20-alpine AS deps
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 # Copy package files
@@ -8,10 +9,14 @@ RUN npm install --ignore-scripts
 
 # Rebuild the source code only when needed
 FROM node:20-alpine AS builder
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Set dummy DATABASE_URL for build (actual URL set at runtime)
+ENV DATABASE_URL="file:./dev.db"
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -22,6 +27,7 @@ RUN npm run build
 
 # Production image, copy all the files and run next
 FROM node:20-alpine AS runner
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 ENV NODE_ENV production
