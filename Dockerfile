@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm install --omit=dev
+RUN npm install --ignore-scripts
 
 # Rebuild the source code only when needed
 FROM node:20-alpine AS builder
