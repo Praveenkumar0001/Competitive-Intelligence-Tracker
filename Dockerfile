@@ -31,14 +31,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy necessary files
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/prisma ./prisma
 
-# Create directory for database
-RUN mkdir -p /app/prisma && chown -R nextjs:nodejs /app
+# Create directories for database and public assets
+RUN mkdir -p /app/prisma /app/public && chown -R nextjs:nodejs /app
 
 USER nextjs
 
