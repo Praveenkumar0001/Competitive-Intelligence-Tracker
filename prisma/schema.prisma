@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Competitor {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  tags        String?  // Comma-separated tags
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  links       Link[]
+  alerts      Alert[]
+}
+
+model Link {
+  id           String   @id @default(uuid())
+  url          String
+  linkType     String   // "pricing", "docs", "changelog", "other"
+  competitorId String
+  competitor   Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  checks       Check[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Check {
+  id          String   @id @default(uuid())
+  linkId      String
+  link        Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  content     String   // HTML content
+  textContent String   // Plain text content
+  checkDate   DateTime @default(now())
+  status      String   // "success", "error"
+  errorMsg    String?
+  changes     Change[]
+}
+
+model Change {
+  id            String   @id @default(uuid())
+  checkId       String
+  check         Check    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  diffText      String   // The diff output
+  summary       String?  // AI-generated summary
+  hasSignificant Boolean @default(false) // Filter for "changes that matter"
+  snippets      String?  // JSON array of important snippets with citations
+  createdAt     DateTime @default(now())
+}
+
+model Alert {
+  id           String   @id @default(uuid())
+  competitorId String
+  competitor   Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  keyword      String   // Keyword to watch for
+  isActive     Boolean  @default(true)
+  lastTriggered DateTime?
+  createdAt    DateTime @default(now())
+}
